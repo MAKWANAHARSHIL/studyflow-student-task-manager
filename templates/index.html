@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>StudyFlow | Student Task Manager</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="container">
+    <header class="header">
+        <a class="brand" href="/">✦ StudyFlow</a>
+        <span class="status"><i></i> Cloud-ready app</span>
+    </header>
+
+    <section class="hero">
+        <p class="eyebrow">YOUR STUDY SPACE</p>
+        <h1>Make room for <span>great work.</span></h1>
+        <p>Organize assignments, track deadlines and celebrate
+           every small win.</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="stats">
+        <div class="stat"><small>ALL TASKS</small><strong>{{ total }}</strong></div>
+        <div class="stat"><small>COMPLETED</small><strong>{{ completed }}</strong></div>
+        <div class="stat"><small>PENDING</small><strong>{{ pending }}</strong></div>
+    </section>
+
+    <section class="layout">
+        <div class="panel">
+            <p class="eyebrow">PLAN AHEAD</p>
+            <h2>Add a task</h2>
+
+            <form action="/add" method="post">
+                <label for="title">Task title *</label>
+                <input id="title" name="title" required maxlength="120"
+                       placeholder="Prepare cloud computing report">
+
+                <label for="subject">Subject</label>
+                <input id="subject" name="subject" maxlength="80"
+                       placeholder="Cloud Computing">
+
+                <div class="form-row">
+                    <div>
+                        <label for="due_date">Due date</label>
+                        <input id="due_date" name="due_date" type="date">
+                    </div>
+                    <div>
+                        <label for="priority">Priority</label>
+                        <select id="priority" name="priority">
+                            <option>Low</option>
+                            <option selected>Medium</option>
+                            <option>High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="primary" type="submit">Add task ↗</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <p class="eyebrow">STAY ON TRACK</p>
+            <h2>My task list</h2>
+
+            {% if tasks %}
+                {% for task in tasks %}
+                    <article class="task">
+                        <form action="/toggle/{{ task.id }}" method="post">
+                            <button class="check" type="submit"
+                                    title="Toggle completion">
+                                {% if task.completed %}✓{% endif %}
+                            </button>
+                        </form>
+
+                        <div class="task-content">
+                            <strong class="{% if task.completed %}done{% endif %}">
+                                {{ task.title }}
+                            </strong>
+                            <div class="meta">
+                                {% if task.subject %}{{ task.subject }} · {% endif %}
+                                {% if task.due_date %}Due {{ task.due_date }} · {% endif %}
+                                <span class="priority {{ task.priority|lower }}">
+                                    {{ task.priority }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <form action="/delete/{{ task.id }}" method="post"
+                              onsubmit="return confirm('Delete this task?')">
+                            <button class="delete" type="submit"
+                                    aria-label="Delete task">×</button>
+                        </form>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="empty">
+                    <div class="empty-icon">✧</div>
+                    <h3>Your next win starts here</h3>
+                    <p>Add your first task using the form.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer>StudyFlow · GMIU Cloud Computing Practical</footer>
+</main>
+</body>
+</html>
